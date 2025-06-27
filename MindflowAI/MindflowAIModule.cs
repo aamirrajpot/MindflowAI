@@ -8,6 +8,7 @@ using MindflowAI.Data;
 using MindflowAI.HealthChecks;
 using MindflowAI.Localization;
 using OpenIddict.Validation.AspNetCore;
+using System.Security.Cryptography.X509Certificates;
 using Volo.Abp;
 using Volo.Abp.Account;
 using Volo.Abp.Account.Web;
@@ -142,8 +143,9 @@ public class MindflowAIModule : AbpModule
             {
                 serverBuilder.AddProductionEncryptionAndSigningCertificate(
                     Path.Combine(AppContext.BaseDirectory, "openiddict.pfx"),
-                    configuration["AuthServer:CertificatePassPhrase"]
-                    );
+                    configuration["AuthServer:CertificatePassPhrase"],
+                    X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet
+                );
             });
         }
 
