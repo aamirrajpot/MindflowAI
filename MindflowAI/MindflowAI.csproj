@@ -81,15 +81,15 @@
       <PrivateAssets>compile; contentFiles; build; buildMultitargeting; buildTransitive; analyzers; native</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-  
-  <ItemGroup Condition="Exists('./openiddict.pfx')">
-    <None Remove="openiddict.pfx" />
-    <EmbeddedResource Include="openiddict.pfx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-  </ItemGroup>
 
-  <ItemGroup>
+	<ItemGroup>
+		<Content Include="openiddict.pfx">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+
+	<ItemGroup>
     <Content Remove="Localization\MindflowAI\*.json" />
     <EmbeddedResource Include="Localization\MindflowAI\*.json" />
   </ItemGroup>
