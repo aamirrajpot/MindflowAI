@@ -184,13 +184,13 @@ public class MindflowAIModule : AbpModule
         ConfigureVirtualFiles(hostingEnvironment);
         ConfigureEfCore(context);
        
-        context.Services.AddAuthentication()
-            .AddGoogle(googleOptions =>
-            {
-                googleOptions.ClientId = configuration["Authentication:Google:ClientId"];
-                googleOptions.ClientSecret = configuration["Authentication:Google:ClientSecret"];
-                // Optional: set callback path or other options here
-            });
+        //context.Services.AddAuthentication()
+        //    .AddGoogle(googleOptions =>
+        //    {
+        //        googleOptions.ClientId = configuration["Authentication:Google:ClientId"];
+        //        googleOptions.ClientSecret = configuration["Authentication:Google:ClientSecret"];
+        //        // Optional: set callback path or other options here
+        //    });
     }
     
 
