@@ -10,6 +10,7 @@ using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Emailing;
 using Volo.Abp.Identity;
 using Volo.Abp.MultiTenancy;
+using Volo.Abp.Settings;
 
 namespace MindflowAI.Services.User
 {
@@ -18,15 +19,21 @@ namespace MindflowAI.Services.User
         private readonly IdentityUserManager _userManager;
         private readonly IRepository<EmailOtp, Guid> _otpRepo;
         private readonly IEmailSender _emailSender;
+        private readonly ISettingProvider _settingProvider;
+        private readonly ISettingEncryptionService _encryptionService;
 
         public UserAccountAppService(
             IdentityUserManager userManager,
             IRepository<EmailOtp, Guid> otpRepo,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            ISettingProvider settingProvider,
+            ISettingEncryptionService encryptionService)
         {
             _userManager = userManager;
             _otpRepo = otpRepo;
             _emailSender = emailSender;
+            _settingProvider = settingProvider;
+            _encryptionService = encryptionService;
         }
 
         public async Task<Guid> RegisterAsync(RegisterWithOtpDto input)
@@ -37,17 +44,28 @@ namespace MindflowAI.Services.User
                 input.Email)
             {
                 FirstName = input.FirstName,
-                LastName = input.LastName
+                LastName = input.LastName,
             };
-            user.SetProperty("IsActive", true);
+            user.SetProperty("IsActive", false);
             (await _userManager.CreateAsync(user, input.Password)).CheckErrors();
+            user.SetIsActive(false);
 
             var otpCode = GenerateOtp();
             await _otpRepo.InsertAsync(new EmailOtp(
-                Guid.NewGuid(), user.Id, otpCode, DateTime.UtcNow.AddMinutes(10)
+                Guid.NewGuid(), user.Id, otpCode, DateTime.UtcNow.AddMinutes(5)
             ), autoSave: true);
-
-            await _emailSender.SendAsync(input.Email, "Your OTP Code", $"Your OTP is: {otpCode}");
+            await _emailSender.SendAsync(input.Email
+                , "Your Mindflow AI OTP Code"
+                , $@"
+                    Hi {user.Name},<br/><br/>
+                    Welcome to <b>Mindflow AI</b>! To complete your registration, please use the following One-Time Password (OTP):<br/><br/>
+                    <h2 style='color:#2e86de;'>🔐 {otpCode}</h2><br/>
+                    This code is valid for the next <b>5 minutes</b>.<br/><br/>
+                    If you did not request this, you can safely ignore this email.<br/><br/>
+                    Thanks,<br/>
+                    <b>Mindflow AI Team</b>
+                    ",true
+                );
 
             return user.Id;
         }
@@ -67,12 +85,12 @@ namespace MindflowAI.Services.User
             await _otpRepo.UpdateAsync(otp);
 
             var user = await _userManager.FindByIdAsync(input.UserId.ToString());
-            user.SetProperty("IsActive", true);
+            user.SetIsActive(true);
             await _userManager.UpdateAsync(user);
         }
 
         private string GenerateOtp() =>
-            new Random().Next(100000, 999999).ToString();
+            new Random().Next(1000, 9999).ToString();
     }
 
 

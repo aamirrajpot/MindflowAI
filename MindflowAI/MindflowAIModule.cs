@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Extensions.DependencyInjection;
+using Microsoft.CodeAnalysis.Emit;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
 using MindflowAI.Data;
@@ -25,6 +26,7 @@ using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
 using Volo.Abp.Caching;
 using Volo.Abp.Data;
 using Volo.Abp.Emailing;
+using Volo.Abp.Emailing.Smtp;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.SqlServer;
 using Volo.Abp.FeatureManagement;
@@ -44,7 +46,6 @@ using Volo.Abp.PermissionManagement.Identity;
 using Volo.Abp.PermissionManagement.OpenIddict;
 using Volo.Abp.Security.Claims;
 using Volo.Abp.SettingManagement;
-using Volo.Abp.SettingManagement;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.Studio.Client.AspNetCore;
 using Volo.Abp.Swashbuckle;
@@ -56,6 +57,7 @@ using Volo.Abp.VirtualFileSystem;
 namespace MindflowAI;
 
 [DependsOn(
+     typeof(AbpEmailingModule),
     // ABP Framework packages
     typeof(AbpAspNetCoreMvcModule),
     typeof(AbpAutofacModule),
@@ -165,7 +167,7 @@ public class MindflowAIModule : AbpModule
 
         if (hostingEnvironment.IsDevelopment())
         {
-            context.Services.Replace(ServiceDescriptor.Singleton<IEmailSender, NullEmailSender>());
+            context.Services.Replace(ServiceDescriptor.Singleton<IEmailSender, SmtpEmailSender>());
         }
 
         ConfigureAuthentication(context);
@@ -181,7 +183,7 @@ public class MindflowAIModule : AbpModule
         ConfigureDataProtection(context);
         ConfigureVirtualFiles(hostingEnvironment);
         ConfigureEfCore(context);
-
+       
         context.Services.AddAuthentication()
             .AddGoogle(googleOptions =>
             {
