@@ -1,0 +1,5 @@
+{
+    "appService.preDeployTask": "publish-release",
+    "appService.deploySubpath": "MindflowAI\\bin\\Release\\net9.0\\publish",
+    "appService.defaultWebAppToDeploy": "/subscriptions/21008139-359d-43ff-9a9d-f6cd9efe693f/resourceGroups/DefaultResourceGroup-CCAN/providers/Microsoft.Web/sites/MindflowAI"
+}
