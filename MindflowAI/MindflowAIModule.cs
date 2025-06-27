@@ -131,15 +131,21 @@ public class MindflowAIModule : AbpModule
             });
         });
 
-        PreConfigure<AbpOpenIddictAspNetCoreOptions>(options =>
+        if (!hostingEnvironment.IsDevelopment())
         {
-            options.AddDevelopmentEncryptionAndSigningCertificate = true;
-        });
+            PreConfigure<AbpOpenIddictAspNetCoreOptions>(options =>
+            {
+                options.AddDevelopmentEncryptionAndSigningCertificate = false;
+            });
 
-        PreConfigure<OpenIddictServerBuilder>(serverBuilder =>
-        {
-            // Do not load production cert
-        });
+            PreConfigure<OpenIddictServerBuilder>(serverBuilder =>
+            {
+                serverBuilder.AddProductionEncryptionAndSigningCertificate(
+                    Path.Combine(AppContext.BaseDirectory, "openiddict.pfx"),
+                    configuration["AuthServer:CertificatePassPhrase"]
+                    );
+            });
+        }
 
         context.Services.AddHttpClient("Ollama", client =>
         {
