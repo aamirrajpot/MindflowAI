@@ -1,0 +1,14 @@
+﻿{
+  "applications": {
+    "MindflowAI": {
+      "type": "dotnet-project",
+      "launchUrl": "https://localhost:44331",
+      "healthCheckEndpoint": "/health-status",
+      "healthUiEndpoint": "/health-ui",
+      "path": "../../MindflowAI/MindflowAI.csproj",
+      "execution": {
+        "order": 0
+      }
+    }
+  }
+}
