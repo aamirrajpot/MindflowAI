@@ -93,7 +93,9 @@
     <Content Remove="Localization\MindflowAI\*.json" />
     <EmbeddedResource Include="Localization\MindflowAI\*.json" />
   </ItemGroup>
-
+	<ItemGroup>
+		<Content Include="wwwroot\**\*.*" CopyToPublishDirectory="PreserveNewest" />
+	</ItemGroup>
   <ItemGroup>
     <Compile Remove="Logs\**" />
     <Content Remove="Logs\**" />
