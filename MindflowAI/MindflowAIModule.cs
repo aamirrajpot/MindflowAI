@@ -131,6 +131,12 @@ public class MindflowAIModule : AbpModule
                 options.UseAspNetCore();
             });
         });
+        PreConfigure<OpenIddictServerBuilder>(builder =>
+        {
+            builder
+                .AllowPasswordFlow() // This adds support for Resource Owner Password Credentials
+                .AcceptAnonymousClients(); // Optional: only if you're not using client_secret
+        });
 
         if (!hostingEnvironment.IsDevelopment())
         {
@@ -146,6 +152,7 @@ public class MindflowAIModule : AbpModule
                     configuration["AuthServer:CertificatePassPhrase"],
                     X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet
                 );
+               
             });
         }
 
