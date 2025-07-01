@@ -126,6 +126,7 @@ public class MindflowAIModule : AbpModule
         {
             builder.AddValidation(options =>
             {
+                options.SetIssuer(configuration["AuthServer:Authority"]);
                 options.AddAudiences("MindflowAI");
                 options.UseLocalServer();
                 options.UseAspNetCore();
