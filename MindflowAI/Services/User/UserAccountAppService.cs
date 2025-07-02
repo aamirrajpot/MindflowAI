@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using MindflowAI.Entities.AppUser;
 using MindflowAI.Entities.EmailOtp;
 using MindflowAI.Services.Dtos.AppUser;
@@ -14,14 +15,14 @@ using Volo.Abp.Settings;
 
 namespace MindflowAI.Services.User
 {
-    public class UserAccountAppService : ApplicationService
+    public class UserAccountAppService : ApplicationService,IUserAccountAppService
     {
         private readonly IdentityUserManager _userManager;
         private readonly IRepository<EmailOtp, Guid> _otpRepo;
         private readonly IEmailSender _emailSender;
         private readonly ISettingProvider _settingProvider;
         private readonly ISettingEncryptionService _encryptionService;
-
+        
         public UserAccountAppService(
             IdentityUserManager userManager,
             IRepository<EmailOtp, Guid> otpRepo,
@@ -35,7 +36,7 @@ namespace MindflowAI.Services.User
             _settingProvider = settingProvider;
             _encryptionService = encryptionService;
         }
-
+        [AllowAnonymous]
         public async Task<Guid> RegisterAsync(RegisterWithOtpDto input)
         {
             var user = new AppUser(
@@ -49,6 +50,7 @@ namespace MindflowAI.Services.User
             user.SetProperty("IsActive", false);
             (await _userManager.CreateAsync(user, input.Password)).CheckErrors();
             user.SetIsActive(false);
+            await _userManager.AddToRoleAsync(user, "user");
 
             var otpCode = GenerateOtp();
             await _otpRepo.InsertAsync(new EmailOtp(
@@ -69,6 +71,7 @@ namespace MindflowAI.Services.User
 
             return user.Id;
         }
+        [AllowAnonymous]
         public async Task VerifyOtpAsync(OtpVerificationDto input)
         {
             var otp = await _otpRepo.FirstOrDefaultAsync(x =>
@@ -87,6 +90,29 @@ namespace MindflowAI.Services.User
             var user = await _userManager.FindByIdAsync(input.UserId.ToString());
             user.SetIsActive(true);
             await _userManager.UpdateAsync(user);
+        }
+        [Authorize] // Requires authentication
+        public async Task<bool> ChangePasswordAsync(ChangePasswordDto input)
+        {
+            // Get the current user
+            var user = await _userManager.GetByIdAsync(CurrentUser.Id!.Value);
+
+            // Verify current password
+            var isPasswordValid = await _userManager.CheckPasswordAsync(user, input.CurrentPassword);
+            if (!isPasswordValid)
+            {
+                throw new UserFriendlyException("Current password is incorrect.");
+            }
+
+            // Change the password
+            var result = await _userManager.ChangePasswordAsync(user,input.CurrentPassword, input.NewPassword);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new UserFriendlyException($"Failed to change password: {errors}");
+            }
+
+            return true;
         }
 
         private string GenerateOtp() =>
