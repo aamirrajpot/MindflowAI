@@ -68,6 +68,7 @@ namespace MindflowAI.Services.User
                     ",true
                 );
 
+            //Role removed
             return user.Id;
         }
         [AllowAnonymous]
