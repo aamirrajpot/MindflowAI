@@ -129,7 +129,7 @@ public class MindflowAIModule : AbpModule
                 options.SetIssuer(configuration["AuthServer:Authority"]);
                 options.AddAudiences("MindflowAI");
                 options.UseLocalServer();
-                options.UseAspNetCore();
+                options.UseAspNetCore()
             });
         });
         PreConfigure<OpenIddictServerBuilder>(builder =>
@@ -419,6 +419,21 @@ public class MindflowAIModule : AbpModule
         app.UseAbpStudioLink();
         app.UseAbpSecurityHeaders();
         app.UseCors();
+        app.Use(async (context, next) =>
+        {
+            await next();
+
+            if (context.Response.StatusCode == 401 && !context.Response.HasStarted)
+            {
+                context.Response.ContentType = "application/json";
+                await context.Response.WriteAsync("{\"error\":\"unauthorized\",\"message\":\"Authentication required\"}");
+            }
+            else if (context.Response.StatusCode == 403 && !context.Response.HasStarted)
+            {
+                context.Response.ContentType = "application/json";
+                await context.Response.WriteAsync("{\"error\":\"forbidden\",\"message\":\"You do not have permission\"}");
+            }
+        });
         app.UseAuthentication();
         app.UseAbpOpenIddictValidation();
 
