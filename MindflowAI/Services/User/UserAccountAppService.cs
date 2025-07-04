@@ -50,7 +50,6 @@ namespace MindflowAI.Services.User
             user.SetProperty("IsActive", false);
             (await _userManager.CreateAsync(user, input.Password)).CheckErrors();
             user.SetIsActive(false);
-            await _userManager.AddToRoleAsync(user, "user");
 
             var otpCode = GenerateOtp();
             await _otpRepo.InsertAsync(new EmailOtp(
