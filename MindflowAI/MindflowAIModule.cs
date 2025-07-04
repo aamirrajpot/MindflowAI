@@ -129,7 +129,7 @@ public class MindflowAIModule : AbpModule
                 options.SetIssuer(configuration["AuthServer:Authority"]);
                 options.AddAudiences("MindflowAI");
                 options.UseLocalServer();
-                options.UseAspNetCore()
+                options.UseAspNetCore();
             });
         });
         PreConfigure<OpenIddictServerBuilder>(builder =>
