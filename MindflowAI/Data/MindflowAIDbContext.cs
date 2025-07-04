@@ -2,6 +2,7 @@
 using MindflowAI.Entities.AppUser;
 using MindflowAI.Entities.Books;
 using MindflowAI.Entities.EmailOtp;
+using MindflowAI.Entities.WellnessCheckin;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
@@ -19,6 +20,7 @@ public class MindflowAIDbContext : AbpDbContext<MindflowAIDbContext>
 {
     public DbSet<Book> Books { get; set; }
     public DbSet<EmailOtp> EmailOtps { get; set; }
+    public DbSet<WellnessCheckIn>  WellnessCheckIns{ get; set; }
 
     public const string DbTablePrefix = "App";
     public const string DbSchema = null;
