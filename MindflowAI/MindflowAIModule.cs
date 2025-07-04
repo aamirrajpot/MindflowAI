@@ -136,7 +136,9 @@ public class MindflowAIModule : AbpModule
         {
             builder
                 .AllowPasswordFlow() // This adds support for Resource Owner Password Credentials
-                .AcceptAnonymousClients(); // Optional: only if you're not using client_secret
+                .AcceptAnonymousClients().UseReferenceAccessTokens()
+    .UseReferenceRefreshTokens().SetRevocationEndpointUris("/connect/revocation");
+            ; // Optional: only if you're not using client_secret
         });
 
         if (!hostingEnvironment.IsDevelopment())
