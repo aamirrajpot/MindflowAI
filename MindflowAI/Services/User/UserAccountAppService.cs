@@ -23,22 +23,19 @@ namespace MindflowAI.Services.User
         private readonly IEmailSender _emailSender;
         private readonly ISettingProvider _settingProvider;
         private readonly ISettingEncryptionService _encryptionService;
-        private readonly IUserRepository<AppUser> _userRepository;
 
         public UserAccountAppService(
             IdentityUserManager userManager,
             IRepository<EmailOtp, Guid> otpRepo,
             IEmailSender emailSender,
             ISettingProvider settingProvider,
-            ISettingEncryptionService encryptionService,
-            IUserRepository<AppUser> userRepository)
+            ISettingEncryptionService encryptionService)
         {
             _userManager = userManager;
             _otpRepo = otpRepo;
             _emailSender = emailSender;
             _settingProvider = settingProvider;
             _encryptionService = encryptionService;
-            _userRepository = userRepository;
         }
         [AllowAnonymous]
         public async Task<Guid> RegisterAsync(RegisterWithOtpDto input)
@@ -121,7 +118,7 @@ namespace MindflowAI.Services.User
         [Authorize]
         public async Task<MyProfileDto> GetMyProfileAsync()
         {
-            var user = await _userRepository.GetAsync(CurrentUser.GetId());
+            var user = await _userManager.GetByIdAsync(CurrentUser.GetId());
 
             return new MyProfileDto
             {
@@ -134,7 +131,7 @@ namespace MindflowAI.Services.User
         }
         public async Task UpdateMyProfileAsync(UpdateMyProfileDto input)
         {
-            var user = await _userRepository.GetAsync(CurrentUser.GetId());
+            var user = await _userManager.GetByIdAsync(CurrentUser.GetId());
 
             user.SetProperty("FirstName", input.FirstName?.Trim());
             user.SetProperty("LastName", input.LastName?.Trim());
