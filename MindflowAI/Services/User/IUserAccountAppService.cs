@@ -9,5 +9,7 @@ namespace MindflowAI.Services.User
         Task<Guid> RegisterAsync(RegisterWithOtpDto input);
         Task VerifyOtpAsync(OtpVerificationDto input);
         Task<bool> ChangePasswordAsync(ChangePasswordDto input);
+        Task<MyProfileDto> GetMyProfileAsync();
+        Task UpdateMyProfileAsync(UpdateMyProfileDto input);
     }
 }

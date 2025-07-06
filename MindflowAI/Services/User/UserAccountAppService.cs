@@ -12,6 +12,7 @@ using Volo.Abp.Emailing;
 using Volo.Abp.Identity;
 using Volo.Abp.MultiTenancy;
 using Volo.Abp.Settings;
+using Volo.Abp.Users;
 
 namespace MindflowAI.Services.User
 {
@@ -22,19 +23,22 @@ namespace MindflowAI.Services.User
         private readonly IEmailSender _emailSender;
         private readonly ISettingProvider _settingProvider;
         private readonly ISettingEncryptionService _encryptionService;
-        
+        private readonly IUserRepository<AppUser> _userRepository;
+
         public UserAccountAppService(
             IdentityUserManager userManager,
             IRepository<EmailOtp, Guid> otpRepo,
             IEmailSender emailSender,
             ISettingProvider settingProvider,
-            ISettingEncryptionService encryptionService)
+            ISettingEncryptionService encryptionService,
+            IUserRepository<AppUser> userRepository)
         {
             _userManager = userManager;
             _otpRepo = otpRepo;
             _emailSender = emailSender;
             _settingProvider = settingProvider;
             _encryptionService = encryptionService;
+            _userRepository = userRepository;
         }
         [AllowAnonymous]
         public async Task<Guid> RegisterAsync(RegisterWithOtpDto input)
@@ -114,7 +118,30 @@ namespace MindflowAI.Services.User
 
             return true;
         }
+        [Authorize]
+        public async Task<MyProfileDto> GetMyProfileAsync()
+        {
+            var user = await _userRepository.GetAsync(CurrentUser.GetId());
 
+            return new MyProfileDto
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                FirstName = user.GetProperty<string>("FirstName"),
+                LastName = user.GetProperty<string>("LastName"),
+                DateOfBirth = user.GetProperty<DateTime?>("DateOfBirth")
+            };
+        }
+        public async Task UpdateMyProfileAsync(UpdateMyProfileDto input)
+        {
+            var user = await _userRepository.GetAsync(CurrentUser.GetId());
+
+            user.SetProperty("FirstName", input.FirstName?.Trim());
+            user.SetProperty("LastName", input.LastName?.Trim());
+            user.SetProperty("DateOfBirth", input.DateOfBirth);
+
+            await _userManager.UpdateAsync(user);
+        }
         private string GenerateOtp() =>
             new Random().Next(1000, 9999).ToString();
     }

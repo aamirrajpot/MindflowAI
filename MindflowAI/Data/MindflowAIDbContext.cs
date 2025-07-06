@@ -57,8 +57,10 @@ public class MindflowAIDbContext : AbpDbContext<MindflowAIDbContext>
 
         builder.Entity<AppUser>(b =>
         {
-            b.Property(x => x.FirstName).HasMaxLength(64);
-            b.Property(x => x.LastName).HasMaxLength(64);
+            b.ConfigureByConvention();
+            b.Property(u => u.FirstName).HasMaxLength(64);
+            b.Property(u => u.LastName).HasMaxLength(64);
+            b.Property(u => u.DateOfBirth);
         });
     }
 }
