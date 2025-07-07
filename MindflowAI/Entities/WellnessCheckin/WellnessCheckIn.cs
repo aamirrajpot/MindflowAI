@@ -7,7 +7,7 @@ namespace MindflowAI.Entities.WellnessCheckin
         public Guid UserId { get; set; }
         public int StressLevel { get; set; }          // e.g., 1–10
         public int MoodLevel { get; set; }            // e.g., 1:Sad, 2:Neutral, 3:Happy
-        public int EnergyLevel { get; set; }          // 1:Low, 2:Medium, 3:High
+        public string EnergyLevel { get; set; }          // 1:Low, 2:Medium, 3:High
         public int SpiritualWellness { get; set; }    // 1–10
 
         public DateTime CheckInDate { get; set; }
@@ -19,7 +19,7 @@ namespace MindflowAI.Entities.WellnessCheckin
             Guid userId,
             int stress,
             int mood,
-            int energy,
+            string energy,
             int spiritual,
             DateTime checkInDate) : base(id)
         {
